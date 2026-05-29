@@ -1,0 +1,13 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS metadata
+.DS_Store
+
+# Distribution zips (we use git now, not zip)
+*.zip
+
+# Local test outputs / scratch
+*.local.*
