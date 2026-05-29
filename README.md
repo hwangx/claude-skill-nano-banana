@@ -17,7 +17,7 @@ Claude Code 스킬 — Google **Nano Banana** (Gemini 이미지 모델, Vertex A
 
 > "이 repo 에서 nano-banana 스킬을 `~/.claude/skills/nano-banana` 에 설치해줘.
 > 기존 폴더가 있으면 지우고 새로 clone 해줘:
-> `https://github.com/indexfinger-Corp/claude-skill-nano-banana`"
+> `https://github.com/hwangx/claude-skill-nano-banana`"
 
 Claude 가 기존 폴더 제거 → `git clone` 까지 해줍니다. 끝나면 **Claude Code 를 재시작**하세요.
 
@@ -25,12 +25,12 @@ Claude 가 기존 폴더 제거 → `git clone` 까지 해줍니다. 끝나면 *
 
 ```bash
 rm -rf ~/.claude/skills/nano-banana
-git clone https://github.com/indexfinger-Corp/claude-skill-nano-banana ~/.claude/skills/nano-banana
+git clone https://github.com/hwangx/claude-skill-nano-banana ~/.claude/skills/nano-banana
 ```
 
-> 🔒 private repo 라 처음 한 번은 GitHub 로그인이 필요할 수 있습니다.
-> 이 repo 에 초대(collaborator)돼 있어야 하고, 안 되면 `gh auth login` 또는
-> 로그인 팝업을 따르세요. (이 인증만은 본인 계정이라 Claude 가 대신 못 합니다.)
+> 이 repo 가 public 이면 인증 없이 바로 clone 됩니다. (private 포크라면 처음 한 번
+> GitHub 로그인이 필요 — `gh auth login` 또는 로그인 팝업을 따르세요. 이 인증만은
+> 본인 계정이라 Claude 가 대신 못 합니다.)
 
 ---
 
@@ -81,4 +81,6 @@ Claude 가 요청 내용 보고 자동 선택하며, "프로로" 처럼 직접 �
 
 ---
 
-*Independent internal tool. "Claude", "Gemini", "Nano Banana" 는 각 소유사의 상표입니다.*
+*This project is independent and not affiliated with, endorsed by, or sponsored
+by Anthropic or Google. "Claude", "Claude Code", "Gemini", and "Nano Banana" are
+trademarks of their respective owners. Licensed under MIT — see [LICENSE](LICENSE).*

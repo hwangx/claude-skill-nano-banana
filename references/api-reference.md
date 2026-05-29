@@ -15,7 +15,7 @@ from google import genai
 client = genai.Client(vertexai=True, location="global")  # project auto-detected
 ```
 
-## Models (verified on user project `axial-device-460408-i9`)
+## Models (verified on a Vertex AI project; set your own `GOOGLE_CLOUD_PROJECT`)
 
 | Alias | Real model ID | Generation |
 |---|---|---|
