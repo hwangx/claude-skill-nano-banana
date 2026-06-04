@@ -2,9 +2,10 @@
 """Generate images with Google's Nano Banana family via Vertex AI google-genai SDK.
 
 Models (aliases → real IDs):
-  nano-banana     → gemini-2.5-flash-image          (legacy, fixed 1024)
-  nano-banana-2   → gemini-3.1-flash-image-preview  (default — fast, cheap, 14 aspects, 4K)
-  nano-banana-pro → gemini-3-pro-image-preview      (text rendering, thinking, professional)
+  nano-banana     → gemini-2.5-flash-image   (legacy, fixed 1024)
+  nano-banana-2   → gemini-3.1-flash-image   (default — fast, cheap, 14 aspects, 4K)
+  nano-banana-pro → gemini-3-pro-image       (text rendering, thinking, professional)
+  (old *-preview IDs retired 2026-07-17; aliases map to these GA endpoints.)
 
 Auth: ADC via `gcloud auth application-default login`.
 Project: GOOGLE_CLOUD_PROJECT env var or quota_project_id in ADC.
@@ -24,25 +25,28 @@ from google.genai import types
 
 
 MODEL_ALIASES = {
-    # Default
-    "nano-banana-2": "gemini-3.1-flash-image-preview",
-    "banana-2": "gemini-3.1-flash-image-preview",
-    "2": "gemini-3.1-flash-image-preview",
-    "flash": "gemini-3.1-flash-image-preview",
-    # Pro
-    "nano-banana-pro": "gemini-3-pro-image-preview",
-    "banana-pro": "gemini-3-pro-image-preview",
-    "pro": "gemini-3-pro-image-preview",
+    # Default — GA endpoint (preview retired 2026-07-17)
+    "nano-banana-2": "gemini-3.1-flash-image",
+    "banana-2": "gemini-3.1-flash-image",
+    "2": "gemini-3.1-flash-image",
+    "flash": "gemini-3.1-flash-image",
+    # Pro — GA endpoint
+    "nano-banana-pro": "gemini-3-pro-image",
+    "banana-pro": "gemini-3-pro-image",
+    "pro": "gemini-3-pro-image",
     # Legacy
     "nano-banana": "gemini-2.5-flash-image",
     "nano-banana-1": "gemini-2.5-flash-image",
     "banana-1": "gemini-2.5-flash-image",
     "1": "gemini-2.5-flash-image",
+    # Backward-compat: old preview IDs transparently map to their GA successors.
+    "gemini-3.1-flash-image-preview": "gemini-3.1-flash-image",
+    "gemini-3-pro-image-preview": "gemini-3-pro-image",
 }
 
 # Capability matrix per resolved model id.
 MODEL_CAPS = {
-    "gemini-3.1-flash-image-preview": {
+    "gemini-3.1-flash-image": {
         "sizes": {"512", "1K", "2K", "4K"},
         "aspects": {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4",
                     "9:16", "16:9", "21:9", "1:4", "4:1", "1:8", "8:1"},
@@ -50,7 +54,7 @@ MODEL_CAPS = {
         "thinking_default": "minimal",
         "max_refs": 14,
     },
-    "gemini-3-pro-image-preview": {
+    "gemini-3-pro-image": {
         "sizes": {"1K", "2K", "4K"},
         "aspects": {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4",
                     "9:16", "16:9", "21:9"},
@@ -283,7 +287,7 @@ def main() -> None:
     p.add_argument(
         "--model",
         default="nano-banana-2",
-        help="Model alias or raw ID. Default: nano-banana-2 (gemini-3.1-flash-image-preview).",
+        help="Model alias or raw ID. Default: nano-banana-2 (gemini-3.1-flash-image).",
     )
     p.add_argument(
         "--aspect",

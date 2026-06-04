@@ -19,8 +19,8 @@ client = genai.Client(vertexai=True, location="global")  # project auto-detected
 
 | Alias | Real model ID | Generation |
 |---|---|---|
-| `nano-banana-2` (default) | `gemini-3.1-flash-image-preview` | Gemini 3.1 Flash |
-| `nano-banana-pro` | `gemini-3-pro-image-preview` | Gemini 3 Pro |
+| `nano-banana-2` (default) | `gemini-3.1-flash-image` | Gemini 3.1 Flash |
+| `nano-banana-pro` | `gemini-3-pro-image` | Gemini 3 Pro |
 | `nano-banana` (legacy) | `gemini-2.5-flash-image` | Gemini 2.5 Flash |
 
 Verify availability:
@@ -65,7 +65,7 @@ cfg = types.GenerateContentConfig(
 )
 
 resp = client.models.generate_content(
-    model="gemini-3.1-flash-image-preview",
+    model="gemini-3.1-flash-image",
     contents=["<Subject → Action → Location → Composition → Style prose>"],
     config=cfg,
 )
@@ -135,9 +135,9 @@ not auto-retry — it surfaces the GCP error verbatim.
 | Issue | Workaround |
 |---|---|
 | Editing / multi-reference | Available via `--ref <image>` (nb2/pro ≤14, legacy 3). Still images only (png/jpg/webp/heic) — animated GIF rejected; identical paths de-duped; total inline payload ≤ ~20MB (else File API/GCS, not wired). Script builds `contents=[Part.from_bytes(img)…, prompt]`. Best on Nano Banana Pro. |
-| Non-deterministic — same prompt yields different results | Expected. Vertex AI image models do not currently accept a seed for these previews |
+| Non-deterministic — same prompt yields different results | Expected. Vertex AI image models do not currently accept a seed for these models |
 | Safety filters block a benign prompt | First raise permissiveness with `--safety relaxed` / `off` (sets the 4 IMAGE harm categories looser + `person_generation=allow_all`). If still blocked it's a server-side hard block (real public-figure likeness, etc.) — avoid named living individuals; for likeness work use Pro with character-consistency reference images |
-| Preview models can change behavior between SDK versions | This skill pins behavior to verified output paths; if `image_config` API changes, surface the SDK exception verbatim |
+| Models can change behavior between SDK / model versions | This skill pins behavior to verified output paths; if `image_config` API changes, surface the SDK exception verbatim |
 | Multi-line CJK text in image may decompose glyphs | Per `prompting-guide.md` §7 — use larger text + double quotes + font name; for critical copy use Nano Banana Pro |
 | 4K + thinking=high latency | Can exceed 60s; bump Bash timeout to 240s+ |
 
@@ -149,7 +149,7 @@ not auto-retry — it surfaces the GCP error verbatim.
 | `PERMISSION_DENIED` | Vertex AI API not enabled, or project missing IAM role `roles/aiplatform.user` | Enable API + grant role |
 | `FAILED_PRECONDITION` | Billing not enabled on project | Attach billing account |
 | `INVALID_ARGUMENT` | aspect / size not supported, prompt too long, bad enum | Read message; script catches most before the call |
-| `NOT_FOUND` | Preview model rolled out of your region | Try `location="us-central1"` or check current preview availability |
+| `NOT_FOUND` | Model not available in your region | Try `location="us-central1"` or check current model availability |
 | `RESOURCE_EXHAUSTED` | Quota / rate limit | Wait, retry, request quota increase |
 | Empty `candidates[0].content.parts` | Safety filter triggered | First retry with `--safety relaxed` / `off`. If still empty → hard block: rephrase (drop named real people, ambiguous anatomy, violence). Do NOT auto-retry the same text under the same safety setting |
 | `INTERNAL` / `UNAVAILABLE` | GCP server issue | Retry with backoff (max 3) |

@@ -2,7 +2,7 @@
 name: nano-banana
 description: >
   Generate images with Google's Nano Banana family (Gemini 3.1 Flash Image
-  preview = "Nano Banana 2", Gemini 3 Pro Image preview = "Nano Banana Pro",
+  = "Nano Banana 2", Gemini 3 Pro Image = "Nano Banana Pro",
   Gemini 2.5 Flash Image = "Nano Banana") via the Vertex AI google-genai SDK.
   Use when the user asks to "make/draw/generate an image", "그림 그려줘",
   "이미지 만들어줘", "그림 만들어줘", "일러스트 그려줘", "아이콘 만들어줘",
@@ -34,8 +34,8 @@ to run `gcloud auth application-default login` and retry.
 
 | Alias (`--model`) | Real ID | When |
 |---|---|---|
-| **`nano-banana-2`** (default) | `gemini-3.1-flash-image-preview` | Default. Fast, cheap. 14 aspect ratios (incl. 1:4, 4:1, 1:8, 8:1). 512/1K/2K/4K. Thinking minimal. |
-| **`nano-banana-pro`** | `gemini-3-pro-image-preview` | Professional asset creation. **Best text rendering**, advanced reasoning (thinking high by default), best character consistency. 1K/2K/4K. |
+| **`nano-banana-2`** (default) | `gemini-3.1-flash-image` | Default. Fast, cheap. 14 aspect ratios (incl. 1:4, 4:1, 1:8, 8:1). 512/1K/2K/4K. Thinking minimal. |
+| **`nano-banana-pro`** | `gemini-3-pro-image` | Professional asset creation. **Best text rendering**, advanced reasoning (thinking high by default), best character consistency. 1K/2K/4K. |
 | `nano-banana` (legacy) | `gemini-2.5-flash-image` | Old gen. Fixed 1024. Use only if the user explicitly asks. |
 
 ### Routing heuristic — Claude decides per request
