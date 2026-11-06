@@ -19,7 +19,8 @@ client = genai.Client(vertexai=True, location="global")  # project auto-detected
 
 | Alias | Real model ID | Generation |
 |---|---|---|
-| `nano-banana-2` (default) | `gemini-3.1-flash-image` | Gemini 3.1 Flash |
+| `nano-banana-2` (default) | `gemini-nano-banana-2.1` | Nano Banana 2.1 |
+| raw ID only (previous default) | `gemini-3.1-flash-image` | Gemini 3.1 Flash |
 | `nano-banana-pro` | `gemini-3-pro-image` | Gemini 3 Pro |
 | `nano-banana` (legacy) | `gemini-2.5-flash-image` | Gemini 2.5 Flash |
 
@@ -31,6 +32,8 @@ for m in client.models.list():
 ```
 
 ## Capability matrix
+
+The Nano Banana 2 column below describes `gemini-3.1-flash-image`. `gemini-nano-banana-2.1` differs in three ways: resolution is 1K / 2K / 4K, thinking is minimal / medium (default) / high, and Google states improved visual quality, prompt adherence, multi-turn character consistency and text rendering. Token ranges for 2.1 aren't confirmed here.
 
 | | Nano Banana | Nano Banana 2 | Nano Banana Pro |
 |---|---|---|---|
@@ -65,7 +68,7 @@ cfg = types.GenerateContentConfig(
 )
 
 resp = client.models.generate_content(
-    model="gemini-3.1-flash-image",
+    model="gemini-nano-banana-2.1",
     contents=["<Subject → Action → Location → Composition → Style prose>"],
     config=cfg,
 )

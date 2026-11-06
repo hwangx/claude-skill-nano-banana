@@ -76,7 +76,7 @@ nano-banana/
     └── api-reference.md          모델·옵션·비용·에러 레퍼런스
 ```
 
-세 모델: `nano-banana-2`(기본·빠름), `nano-banana-pro`(텍스트·고품질), `nano-banana`(legacy).
+세 모델: `nano-banana-2`(기본·빠름, Nano Banana 2.1), `nano-banana-pro`(텍스트·고품질), `nano-banana`(legacy).
 Claude 가 요청 내용 보고 자동 선택하며, "프로로" 처럼 직접 지정도 가능합니다.
 
 ---

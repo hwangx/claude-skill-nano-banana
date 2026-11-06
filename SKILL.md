@@ -1,8 +1,8 @@
 ---
 name: nano-banana
 description: >
-  Generate images with Google's Nano Banana family (Gemini 3.1 Flash Image
-  = "Nano Banana 2", Gemini 3 Pro Image = "Nano Banana Pro",
+  Generate images with Google's Nano Banana family (Nano Banana 2.1
+  = the `nano-banana-2` default, Gemini 3 Pro Image = "Nano Banana Pro",
   Gemini 2.5 Flash Image = "Nano Banana") via the Vertex AI google-genai SDK.
   Use when the user asks to "make/draw/generate an image", "그림 그려줘",
   "이미지 만들어줘", "그림 만들어줘", "일러스트 그려줘", "아이콘 만들어줘",
@@ -34,7 +34,7 @@ to run `gcloud auth application-default login` and retry.
 
 | Alias (`--model`) | Real ID | When |
 |---|---|---|
-| **`nano-banana-2`** (default) | `gemini-3.1-flash-image` | Default. Fast, cheap. 14 aspect ratios (incl. 1:4, 4:1, 1:8, 8:1). 512/1K/2K/4K. Thinking minimal. |
+| **`nano-banana-2`** (default) | `gemini-nano-banana-2.1` | Default, Nano Banana 2.1. Fast, cheap. 14 aspect ratios (incl. 1:4, 4:1, 1:8, 8:1). 1K/2K/4K. Thinking medium. The previous `gemini-3.1-flash-image` stays reachable by raw ID (also has 512). |
 | **`nano-banana-pro`** | `gemini-3-pro-image` | Professional asset creation. **Best text rendering**, advanced reasoning (thinking high by default), best character consistency. 1K/2K/4K. |
 | `nano-banana` (legacy) | `gemini-2.5-flash-image` | Old gen. Fixed 1024. Use only if the user explicitly asks. |
 
@@ -60,7 +60,7 @@ Stay on **`nano-banana-2`** when:
 ### Session-first-confirm pattern (mimics `gemini-consult`)
 
 - **First call of a session**: announce the routing decision in one line before invoking the script. Example:
-  > → Nano Banana 2 사용 (기본 라우팅). 로고·텍스트·고품질이 필요하면 "Pro로" 말씀해 주세요.
+  > → Nano Banana 2.1 사용 (기본 라우팅). 로고·텍스트·고품질이 필요하면 "Pro로" 말씀해 주세요.
 
   Or:
   > → Nano Banana Pro 사용 (이미지 안에 텍스트가 들어가는 작업이라 자동 격상).
@@ -208,7 +208,7 @@ with the Read tool before reporting. Do not embed inline — just the path.
 | `--model` | `nano-banana-2` | Alias or raw model ID. See routing table above. |
 | `--aspect` | `1:1` | See aspect table. 14 ratios on nb2, 10 on pro/legacy. |
 | `--size` | None | `512`/`1K`/`2K`/`4K` (model-dependent). Omit for legacy. |
-| `--thinking` | model default | `minimal` / `high`. Not supported on legacy. |
+| `--thinking` | model default | `minimal` / `medium` / `high`. Not supported on legacy. |
 | `--include-thoughts` | off | Print model's reasoning on stderr. Useful for debugging Pro outputs. |
 | `--safety` | `default` | `default` / `relaxed` (BLOCK_ONLY_HIGH + allow_all) / `off` (BLOCK_NONE + allow_all). Tunes the 4 IMAGE harm categories only; hard blocks unaffected. |
 | `--format` | `png` | `png` / `jpeg`. |
@@ -226,6 +226,8 @@ The script exits non-zero on failure with the raw error text. Common cases:
 - `PERMISSION_DENIED` / `UNAUTHENTICATED` → `gcloud auth application-default login`
 - `Model not found` → check the model ID is still in preview in your region
 - `aspect not supported` → script catches before the API; check capability table
+- `429 RESOURCE_EXHAUSTED` → capacity or quota is temporarily exhausted; seen in bursts on `gemini-nano-banana-2.1`. The script waits and retries 3 times (10s, 30s, 60s). If it still fails, try later or use `--model nano-banana-pro`, and tell the user which model produced the image.
+- `IMAGE_RECITATION` in the no-image error → the model declined that output, seen on a very generic prompt. Make the prompt more specific; safety flags don't change it.
 - `No image returned` → safety filter or weak prompt. First try `--safety relaxed` / `off`; if still blocked it's a hard block — rephrase (drop named real people, ambiguous anatomy, violence). Do NOT auto-retry the same text.
 - Timeout → bump Bash timeout; Pro thinking=high can be slow
 
