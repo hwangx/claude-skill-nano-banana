@@ -30,6 +30,7 @@ MODEL_ALIASES = {
     "nano-banana-2": "gemini-nano-banana-2.1",
     "nano-banana-2.1": "gemini-nano-banana-2.1",
     "banana-2": "gemini-nano-banana-2.1",
+    "banana-2.1": "gemini-nano-banana-2.1",
     "2": "gemini-nano-banana-2.1",
     "2.1": "gemini-nano-banana-2.1",
     "flash": "gemini-nano-banana-2.1",
@@ -54,6 +55,7 @@ MODEL_CAPS = {
         "aspects": {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4",
                     "9:16", "16:9", "21:9", "1:4", "4:1", "1:8", "8:1"},
         "thinking": True,
+        "thinking_levels": {"minimal", "medium", "high"},
         "thinking_default": "medium",
         "max_refs": 14,
     },
@@ -62,6 +64,7 @@ MODEL_CAPS = {
         "aspects": {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4",
                     "9:16", "16:9", "21:9", "1:4", "4:1", "1:8", "8:1"},
         "thinking": True,
+        "thinking_levels": {"minimal", "high"},
         "thinking_default": "minimal",
         "max_refs": 14,
     },
@@ -70,6 +73,7 @@ MODEL_CAPS = {
         "aspects": {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4",
                     "9:16", "16:9", "21:9"},
         "thinking": True,
+        "thinking_levels": {"high"},
         "thinking_default": "high",
         "max_refs": 14,
     },
@@ -78,6 +82,7 @@ MODEL_CAPS = {
         "aspects": {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4",
                     "9:16", "16:9", "21:9"},
         "thinking": False,
+        "thinking_levels": set(),
         "thinking_default": None,
         "max_refs": 3,  # legacy: up to 3 reference images
     },
@@ -259,6 +264,16 @@ def build_generate_config(args, caps: dict) -> types.GenerateContentConfig:
     safety_settings = build_safety_settings(args.safety)
     if safety_settings:
         cfg_kwargs["safety_settings"] = safety_settings
+
+    if args.thinking:
+        if not caps["thinking"]:
+            sys.exit(f"ERROR: --thinking not supported by model {args.model}.")
+        allowed_levels = caps.get("thinking_levels") or set()
+        if allowed_levels and args.thinking not in allowed_levels:
+            sys.exit(
+                f"ERROR: --thinking {args.thinking!r} not supported by model {args.model}.\n"
+                f"  Supported: {sorted(allowed_levels)}"
+            )
 
     if caps["thinking"] and (args.thinking or args.include_thoughts):
         cfg_kwargs["thinking_config"] = types.ThinkingConfig(

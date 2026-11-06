@@ -33,19 +33,17 @@ for m in client.models.list():
 
 ## Capability matrix
 
-The Nano Banana 2 column below describes `gemini-3.1-flash-image`. `gemini-nano-banana-2.1` differs in three ways: resolution is 1K / 2K / 4K, thinking is minimal / medium (default) / high, and Google states improved visual quality, prompt adherence, multi-turn character consistency and text rendering. Token ranges for 2.1 aren't confirmed here.
-
-| | Nano Banana | Nano Banana 2 | Nano Banana Pro |
-|---|---|---|---|
-| Resolution | 1024 fixed | 512 / 1K / 2K / **4K** | 1K / 2K / **4K** |
-| Aspects | 9 standard | **14** (extras: 1:4, 4:1, 1:8, 8:1) | 9 standard |
-| Text rendering | Good | Advanced | **Excellent** |
-| Multi-image input | up to 3 | up to 14 (10 obj + 4 char) | up to 14 (6 obj + 5 char) |
-| Character consistency | OK | Strong | **Best** |
-| Thinking / reasoning | — | minimal (default) | **high (default)** |
-| Google Search grounding | ❌ | Web + Image | Web + Image |
-| Tokens / image (range) | 1,290 | 500–2,520 | 1,120–2,000 |
-| Positioning | Legacy | Speed + scale | Professional |
+| | Nano Banana | Nano Banana 2 (`gemini-3.1-flash-image`) | **Nano Banana 2.1 (`gemini-nano-banana-2.1`, default)** | Nano Banana Pro |
+|---|---|---|---|---|
+| Resolution | 1024 fixed | 512 / 1K / 2K / **4K** | 1K / 2K / **4K** | 1K / 2K / **4K** |
+| Aspects | 10 standard | **14** (extras: 1:4, 4:1, 1:8, 8:1) | **14** (extras + 2K/4K tiling fix) | 10 standard |
+| Text rendering | Good | Advanced | **Improved** | **Excellent** |
+| Multi-image input | up to 3 | up to 14 (10 obj + 4 char) | up to 14 (10 obj + 4 char) | up to 14 (6 obj + 5 char) |
+| Character consistency | OK | Strong | **Strong+** | **Best** |
+| Thinking / reasoning | — | minimal (default), high | **medium (default)**, minimal, high | **high (default)** |
+| Google Search grounding | ❌ | Web + Image | Web + Image | Web + Image |
+| Tokens / image (Vertex AI) | 1,290 | 500–2,520 | 1,120 (1K) / 1,680 (2K) / 3,780 (4K) | 1,120–2,000 |
+| Positioning | Legacy | Previous gen (512px) | **Speed + scale (default)** | Professional |
 
 ## Request shape
 
@@ -115,6 +113,7 @@ ribbons.
 - Billed in tokens. Per-image **token counts** vary by resolution:
   - Nano Banana (2.5 Flash): 1,290 tokens (all resolutions)
   - Nano Banana 2 (3.1 Flash): 500–2,520 depending on resolution
+  - Nano Banana 2.1 (`gemini-nano-banana-2.1`): 1,120 (1K) / 1,680 (2K) / 3,780 (4K) output tokens (+ 1,120 tokens per input image)
   - Nano Banana Pro (3 Pro): 1,120–2,000 depending on resolution
 - Token rate: see [Vertex AI pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) for the current per-token rate on each model.
 - Rough per-image cost — single-digit cents to under $0.10 for most calls.
@@ -129,9 +128,9 @@ gcloud billing accounts list
 ## Rate limits
 
 Vertex AI quota is per-project, per-model, per-region. Defaults are
-generous for Tier-1 projects (dozens of QPM). On `RESOURCE_EXHAUSTED`,
-back off exponentially (1s → 2s → 4s → 8s) and retry. The script does
-not auto-retry — it surfaces the GCP error verbatim.
+generous for Tier-1 projects (dozens of QPM). On `429` / `RESOURCE_EXHAUSTED`,
+the script automatically retries 3 times (after 10s, 30s, 60s) before surfacing
+the GCP error verbatim.
 
 ## Limits & known issues
 
