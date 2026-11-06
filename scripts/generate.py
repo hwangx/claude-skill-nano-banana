@@ -56,7 +56,7 @@ MODEL_CAPS = {
                     "9:16", "16:9", "21:9", "1:4", "4:1", "1:8", "8:1"},
         "thinking": True,
         "thinking_levels": {"minimal", "medium", "high"},
-        "thinking_default": "medium",
+        "thinking_default": "high",
         "max_refs": 14,
     },
     "gemini-3.1-flash-image": {
@@ -275,11 +275,13 @@ def build_generate_config(args, caps: dict) -> types.GenerateContentConfig:
                 f"  Supported: {sorted(allowed_levels)}"
             )
 
-    if caps["thinking"] and (args.thinking or args.include_thoughts):
-        cfg_kwargs["thinking_config"] = types.ThinkingConfig(
-            thinking_level=args.thinking or caps["thinking_default"] or "minimal",
-            include_thoughts=args.include_thoughts,
-        )
+    if caps["thinking"]:
+        level = args.thinking or caps["thinking_default"]
+        if level or args.include_thoughts:
+            cfg_kwargs["thinking_config"] = types.ThinkingConfig(
+                thinking_level=level or "minimal",
+                include_thoughts=args.include_thoughts,
+            )
 
     return types.GenerateContentConfig(**cfg_kwargs)
 
@@ -339,7 +341,7 @@ def main() -> None:
         "--thinking",
         default=None,
         choices=["minimal", "medium", "high"],
-        help="Thinking level. Default medium (nb2) / high (pro). Not supported on legacy.",
+        help="Thinking level. Default high (nb2/pro) / minimal (3.1-flash-image). Not supported on legacy.",
     )
     p.add_argument(
         "--include-thoughts",

@@ -40,7 +40,7 @@ for m in client.models.list():
 | Text rendering | Good | Advanced | **Improved** | **Excellent** |
 | Multi-image input | up to 3 | up to 14 (10 obj + 4 char) | up to 14 (10 obj + 4 char) | up to 14 (6 obj + 5 char) |
 | Character consistency | OK | Strong | **Strong+** | **Best** |
-| Thinking / reasoning | — | minimal (default), high | **medium (default)**, minimal, high | **high (default)** |
+| Thinking / reasoning | — | minimal (default), high | **high (skill default)**, minimal, medium (API default) | **high (default)** |
 | Google Search grounding | ❌ | Web + Image | Web + Image | Web + Image |
 | Tokens / image (Vertex AI) | 1,290 | 500–2,520 | 1,120 (1K) / 1,680 (2K) / 3,780 (4K) | 1,120–2,000 |
 | Positioning | Legacy | Previous gen (512px) | **Speed + scale (default)** | Professional |

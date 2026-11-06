@@ -34,7 +34,7 @@ to run `gcloud auth application-default login` and retry.
 
 | Alias (`--model`) | Real ID | When |
 |---|---|---|
-| **`nano-banana-2`** (default) | `gemini-nano-banana-2.1` | Default, Nano Banana 2.1. Fast, cheap. 14 aspect ratios (incl. 1:4, 4:1, 1:8, 8:1). 1K/2K/4K. Thinking medium. The previous `gemini-3.1-flash-image` stays reachable by raw ID (also has 512). |
+| **`nano-banana-2`** (default) | `gemini-nano-banana-2.1` | Default, Nano Banana 2.1. Fast, cheap. 14 aspect ratios (incl. 1:4, 4:1, 1:8, 8:1). 1K/2K/4K. Thinking high (skill default; API supports minimal/medium/high). The previous `gemini-3.1-flash-image` stays reachable by raw ID (also has 512). |
 | **`nano-banana-pro`** | `gemini-3-pro-image` | Professional asset creation. **Best text rendering**, advanced reasoning (thinking high by default), best character consistency. 1K/2K/4K. |
 | `nano-banana` (legacy) | `gemini-2.5-flash-image` | Old gen. Fixed 1024. Use only if the user explicitly asks. |
 
@@ -229,7 +229,7 @@ reported as success):
 | `--model` | `nano-banana-2` | Alias or raw model ID. See routing table above. |
 | `--aspect` | `1:1` | See aspect table. 14 ratios on nb2, 10 on pro/legacy. |
 | `--size` | None | `512`/`1K`/`2K`/`4K` (model-dependent). Omit for legacy. |
-| `--thinking` | model default | `minimal` / `medium` / `high`. Not supported on legacy. |
+| `--thinking` | `high` (nb2/pro) | `minimal` / `medium` / `high`. Skill defaults to `high` on 2.1/Pro. Not supported on legacy. |
 | `--include-thoughts` | off | Print model's reasoning on stderr. Useful for debugging Pro outputs. |
 | `--safety` | `default` | `default` / `relaxed` (BLOCK_ONLY_HIGH + allow_all) / `off` (BLOCK_NONE + allow_all). Tunes the 4 IMAGE harm categories only; hard blocks unaffected. |
 | `--format` | `png` | `png` / `jpeg`. |
