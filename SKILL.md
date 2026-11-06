@@ -109,7 +109,8 @@ patterns, anti-patterns, multilingual, before/after): see
 
 ### 2. Apply a `DESIGN.md` if present
 
-If `DESIGN.md` exists at `cwd`, **or** the user references one
+If `DESIGN.md` exists in the current working directory (optional — skip
+silently if absent), **or** the user references one
 ("DESIGN.md 보고", "이 사이트 톤", "editorial-photo.md 스타일"), read it first
 and merge its palette / typography / illustration-style into **slot 3
 (Details)** of every prompt in the current session. Same DESIGN.md = stylistic
@@ -163,6 +164,10 @@ python3 ~/.claude/skills/nano-banana/scripts/generate.py \
   --name <kebab-case-name>
 ```
 
+**Expected on success**: stdout = N absolute path(s) (one per image),
+stderr = 1 model/usage line + N token lines. Empty stdout means generation
+failed — see Errors.
+
 Bash tool timeout: **≥ 240,000 ms** (Pro with thinking=high can take 1–2 min).
 
 **Editing an existing image** — pass it with `--ref` and write a change-X /
@@ -199,6 +204,22 @@ Tell the user:
 If verification matters (text rendered correctly, layout right), open the PNG
 with the Read tool before reporting. Do not embed inline — just the path.
 
+**Completion checklist — verify all four before reporting** (each check is
+mechanical; skipping them is the main way a silently-failed generation gets
+reported as success):
+
+1. At least one image file exists at the reported path and is >0 KB — run
+   `ls -la <path>` (a 0-byte file means the write failed even if the script
+   exited 0).
+2. stdout printed exactly one absolute path per generated image
+   (`--n 3` → 3 paths) — fewer paths means some calls returned no image.
+3. If `--ref` was used, every reference image was PNG/JPEG/WebP — other
+   formats (e.g. animated GIF, HEIC) are rejected and the edit silently
+   degrades or fails.
+4. The reported path(s) match what the user asked for (output dir, file
+   name) — a wrong `--out`/`--name` saves to the wrong place even on an
+   otherwise successful run.
+
 ## Script CLI parameters
 
 | Flag | Default | Notes |
@@ -228,6 +249,11 @@ The script exits non-zero on failure with the raw error text. Common cases:
 - `aspect not supported` → script catches before the API; check capability table
 - `No image returned` → safety filter or weak prompt. First try `--safety relaxed` / `off`; if still blocked it's a hard block — rephrase (drop named real people, ambiguous anatomy, violence). Do NOT auto-retry the same text.
 - Timeout → bump Bash timeout; Pro thinking=high can be slow
+
+**Retry caution**: every call is billed, and even a failed-looking run may
+have already produced a file. Before retrying, check whether the output file
+already exists (`ls <out dir>`); re-running overwrites same-name files but
+double-bills.
 
 ## Limitations
 
