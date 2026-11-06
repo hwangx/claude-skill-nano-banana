@@ -3,9 +3,10 @@
 
 Models (aliases → real IDs):
   nano-banana     → gemini-2.5-flash-image   (legacy, fixed 1024)
-  nano-banana-2   → gemini-3.1-flash-image   (default — fast, cheap, 14 aspects, 4K)
+  nano-banana-2   → gemini-nano-banana-2.1   (default — fast, cheap, 14 aspects, 4K)
   nano-banana-pro → gemini-3-pro-image       (text rendering, thinking, professional)
-  (old *-preview IDs retired 2026-07-17; aliases map to these GA endpoints.)
+  (old *-preview IDs retired 2026-07-17; aliases map to these GA endpoints.
+   The previous default gemini-3.1-flash-image stays reachable by its raw ID.)
 
 Auth: ADC via `gcloud auth application-default login`.
 Project: GOOGLE_CLOUD_PROJECT env var or quota_project_id in ADC.
@@ -25,11 +26,13 @@ from google.genai import types
 
 
 MODEL_ALIASES = {
-    # Default — GA endpoint (preview retired 2026-07-17)
-    "nano-banana-2": "gemini-3.1-flash-image",
-    "banana-2": "gemini-3.1-flash-image",
-    "2": "gemini-3.1-flash-image",
-    "flash": "gemini-3.1-flash-image",
+    # Default — Nano Banana 2.1, the stable update to Nano Banana 2
+    "nano-banana-2": "gemini-nano-banana-2.1",
+    "nano-banana-2.1": "gemini-nano-banana-2.1",
+    "banana-2": "gemini-nano-banana-2.1",
+    "2": "gemini-nano-banana-2.1",
+    "2.1": "gemini-nano-banana-2.1",
+    "flash": "gemini-nano-banana-2.1",
     # Pro — GA endpoint
     "nano-banana-pro": "gemini-3-pro-image",
     "banana-pro": "gemini-3-pro-image",
@@ -46,6 +49,14 @@ MODEL_ALIASES = {
 
 # Capability matrix per resolved model id.
 MODEL_CAPS = {
+    "gemini-nano-banana-2.1": {
+        "sizes": {"1K", "2K", "4K"},
+        "aspects": {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4",
+                    "9:16", "16:9", "21:9", "1:4", "4:1", "1:8", "8:1"},
+        "thinking": True,
+        "thinking_default": "medium",
+        "max_refs": 14,
+    },
     "gemini-3.1-flash-image": {
         "sizes": {"512", "1K", "2K", "4K"},
         "aspects": {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4",
@@ -75,6 +86,15 @@ MODEL_CAPS = {
 # Vertex AI inline-request payload ceiling. Beyond this, the API rejects the
 # request; the File API / GCS URIs would be needed (not wired up here).
 MAX_INLINE_BYTES = 20 * 1024 * 1024  # ~20 MB
+
+# Waits between retries when Vertex answers 429. gemini-nano-banana-2.1 returned
+# bursts of 429s during initial testing, then none on a later spaced run.
+RETRY_DELAYS_429 = (10, 30, 60)
+
+
+def is_capacity_error(e: Exception) -> bool:
+    text = str(e)
+    return "429" in text or "RESOURCE_EXHAUSTED" in text
 
 
 def resolve_model(arg: str) -> str:
@@ -287,7 +307,7 @@ def main() -> None:
     p.add_argument(
         "--model",
         default="nano-banana-2",
-        help="Model alias or raw ID. Default: nano-banana-2 (gemini-3.1-flash-image).",
+        help="Model alias or raw ID. Default: nano-banana-2 (gemini-nano-banana-2.1).",
     )
     p.add_argument(
         "--aspect",
@@ -298,13 +318,13 @@ def main() -> None:
     p.add_argument(
         "--size",
         default=None,
-        help="Image size: 512 (nb2 only), 1K, 2K, 4K (nb2/pro). Omit for nano-banana legacy (fixed 1024).",
+        help="Image size: 1K, 2K, 4K (nb2/pro). Omit for nano-banana legacy (fixed 1024).",
     )
     p.add_argument(
         "--thinking",
         default=None,
-        choices=["minimal", "high"],
-        help="Thinking level. Default minimal (nb2) / high (pro). Not supported on legacy.",
+        choices=["minimal", "medium", "high"],
+        help="Thinking level. Default medium (nb2) / high (pro). Not supported on legacy.",
     )
     p.add_argument(
         "--include-thoughts",
@@ -378,14 +398,19 @@ def main() -> None:
 
     all_paths: list[pathlib.Path] = []
     for i in range(args.n):
-        try:
-            resp = client.models.generate_content(
-                model=args.model,
-                contents=contents,
-                config=cfg,
-            )
-        except Exception as e:
-            sys.exit(f"ERROR generating image (call {i + 1}/{args.n}): {e}")
+        for attempt, delay in enumerate((*RETRY_DELAYS_429, None)):
+            try:
+                resp = client.models.generate_content(
+                    model=args.model,
+                    contents=contents,
+                    config=cfg,
+                )
+                break
+            except Exception as e:
+                if delay is None or not is_capacity_error(e):
+                    sys.exit(f"ERROR generating image (call {i + 1}/{args.n}): {e}")
+                print(f"  (429 capacity, retry {attempt + 1}/{len(RETRY_DELAYS_429)} in {delay}s)", file=sys.stderr)
+                time.sleep(delay)
 
         if args.include_thoughts:
             for cand in resp.candidates or []:
@@ -395,10 +420,12 @@ def main() -> None:
 
         imgs = extract_images(resp)
         if not imgs:
+            first = (resp.candidates or [None])[0]
             sys.exit(
                 f"ERROR: no image returned (call {i + 1}/{args.n}). "
                 f"Possible safety filter or prompt issue. "
-                f"Candidates: {len(resp.candidates or [])}"
+                f"Candidates: {len(resp.candidates or [])}. "
+                f"Finish reason: {getattr(first, 'finish_reason', None)}"
             )
 
         for j, (data, mime) in enumerate(imgs):
