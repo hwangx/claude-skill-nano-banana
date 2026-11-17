@@ -18,12 +18,19 @@ description: >
 
 # nano-banana (Google Gemini image models)
 
-Direct Vertex AI calls via `google-genai` SDK. No third-party deps beyond what
-`gemini-consult` already needs. Auth via Application Default Credentials.
+Direct Vertex AI calls via `google-genai` SDK (the only third-party dep).
+Auth via Application Default Credentials.
 
 ## Prerequisites
 
-- `google-genai` Python package (already installed for `gemini-consult`)
+- Any Python 3.10+ on the machine. Do **not** install `google-genai` by hand:
+  `scripts/run.sh` builds a skill-private environment (`.venv`, from
+  `requirements.txt`) on first use and rebuilds it if it is missing or broken
+  (about a minute; progress goes to stderr only).
+- **Always run the script through `scripts/run.sh`**, never bare `python3`.
+  The system default Python changes version on OS/Homebrew upgrades and
+  packages are installed per version, so bare `python3` eventually fails with
+  `ModuleNotFoundError: No module named 'google'`.
 - ADC authenticated: `gcloud auth application-default login`
 - `GOOGLE_CLOUD_PROJECT` env var set, or `quota_project_id` in ADC
 
@@ -155,7 +162,7 @@ clear. Otherwise let it default to the timestamp.
 ### 5. Run the script
 
 ```bash
-python3 ~/.claude/skills/nano-banana/scripts/generate.py \
+~/.claude/skills/nano-banana/scripts/run.sh ~/.claude/skills/nano-banana/scripts/generate.py \
   "<Subject → Action → Location → Composition → Style prose>" \
   --model nano-banana-2 \
   --aspect 1:1 \
@@ -174,7 +181,7 @@ Bash tool timeout: **≥ 240,000 ms** (Pro with thinking=high can take 1–2 min
 preserve-Y prompt (prefer Nano Banana Pro for fidelity):
 
 ```bash
-python3 ~/.claude/skills/nano-banana/scripts/generate.py \
+~/.claude/skills/nano-banana/scripts/run.sh ~/.claude/skills/nano-banana/scripts/generate.py \
   "Change only the background to deep navy. Preserve everything else identically: \
 the logo, all text, layout, lighting." \
   --ref ./current-banner.png \

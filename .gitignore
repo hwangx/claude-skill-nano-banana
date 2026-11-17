@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Skill-private Python environment (built by scripts/run.sh)
+.venv/
+
 # macOS metadata
 .DS_Store
 

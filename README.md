@@ -46,7 +46,8 @@ Claude 가 `git pull` 해줍니다. (수동: `cd ~/.claude/skills/nano-banana &&
 
 이 스킬은 사용자 **본인 GCP 프로젝트**의 Vertex AI 로 이미지를 만듭니다 (그쪽으로 과금):
 
-- `pip install google-genai`
+- Python 3.10 이상 (`google-genai` 는 따로 설치하지 않습니다 — 처음 쓸 때 `scripts/run.sh` 가
+  스킬 폴더 안에 전용 환경 `.venv` 를 스스로 만듭니다. 1분 안팎)
 - `gcloud auth application-default login`
 - 본인 GCP 프로젝트에 **Vertex AI API 활성화 + 결제 연결**
 
@@ -70,6 +71,8 @@ Claude 가 `git pull` 해줍니다. (수동: `cd ~/.claude/skills/nano-banana &&
 ```
 nano-banana/
 ├── SKILL.md                     스킬 본체 (Claude 가 읽는 지침)
+├── requirements.txt             전용 환경에 설치할 패키지 (google-genai)
+├── scripts/run.sh               전용 환경(.venv)을 만들고 그 파이썬으로 실행
 ├── scripts/generate.py          Vertex AI 호출 (google-genai SDK, stdlib only)
 └── references/
     ├── prompting-guide.md       5슬롯 프롬프트·텍스트 렌더링·카메라 제어·편집 패턴
